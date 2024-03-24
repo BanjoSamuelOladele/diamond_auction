@@ -12,11 +12,7 @@ contract ERC20Facet {
         uint256 _value
     );
 
-    constructor(string memory _name, string memory _symbol, uint8 _decimals){
-        appStorage.name = _name;
-        appStorage.symbol = _symbol;
-        appStorage.decimals = _decimals;
-    }
+    constructor(){}
 
     function name() external view returns (string memory) {
         return appStorage.name;

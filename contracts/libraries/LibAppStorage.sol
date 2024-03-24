@@ -30,8 +30,13 @@ library LibAppStorage {
         l.balances[_to] += _amount;
         emit Transfer(_from, _to, _amount);
     }
+    struct Bidder{
+        uint amount;
+        address bidder;
+    }
 
     struct Auction{
+        string auctionName;
         address owner;
         uint startAt;
         uint endAt;
@@ -40,6 +45,7 @@ library LibAppStorage {
         uint secondHighestBid;
         address highestBidder;
         address secondHighestBidder;
+
         address erc721Address;
         uint tokenId;
     }

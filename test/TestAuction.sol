@@ -1,25 +1,33 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {Test} from "lib/forge-std/src/Test.sol";
+import {IDiamondCut} from "../contracts/interfaces/IDiamondCut.sol";
+import "lib/forge-std/src/Test.sol";
 import "../contracts/Diamond.sol";
 import "../contracts/facets/DiamondCutFacet.sol";
-import "../contracts/interfaces/IDiamondCut.sol";
-import "../contracts/facets/OwnershipFacet.sol";
 import "../contracts/facets/DiamondLoupeFacet.sol";
+import "../contracts/facets/OwnershipFacet.sol";
 import "../contracts/facets/ERC20Facet.sol";
+import "../contracts/facets/Auctions.sol";
+import "../contracts/NFTERC721.sol";
+import "lib/forge-std/src/console.sol";
+import "../contracts/DERC1155.sol";
 
-contract TestERC20Facet is Test, IDiamondCut{
+contract TestAuction is Test, IDiamondCut{
     Diamond private diamond;
     DiamondCutFacet private dCutFacet;
     DiamondLoupeFacet private dLoupe;
     OwnershipFacet private ownerF;
     ERC20Facet private erc20Facet;
+    Auctions private auctions;
+    NFTERC721 private firstNFT;
 
     address private A = address(0xa);
     address private B = address(0xb);
 
-    ERC20Facet private diamondErc20;
+    Auctions private interactingAuction;
+    ERC20Facet private facetErc20;
+    DERC1155 private erc1155;
 
     function setUp() public {
         //deploy facets
@@ -28,6 +36,9 @@ contract TestERC20Facet is Test, IDiamondCut{
         dLoupe = new DiamondLoupeFacet();
         ownerF = new OwnershipFacet();
         erc20Facet = new ERC20Facet();
+        auctions = new Auctions();
+        firstNFT = new NFTERC721();
+        erc1155 = new DERC1155();
 
         //build cut struct
         FacetCut[] memory cut = new FacetCut[](3);
@@ -49,9 +60,9 @@ contract TestERC20Facet is Test, IDiamondCut{
         );
         cut[2] = (
             FacetCut({
-            facetAddress: address(erc20Facet),
+            facetAddress: address(auctions),
             action: FacetCutAction.Add,
-            functionSelectors: generateSelectors("ERC20Facet")
+            functionSelectors: generateSelectors("Auctions")
         })
         );
 
@@ -61,40 +72,12 @@ contract TestERC20Facet is Test, IDiamondCut{
         A = mkaddr("staker a");
         B = mkaddr("staker b");
 
-        //mint test tokens
-        ERC20Facet(address(diamond)).mintTo(A);
-        ERC20Facet(address(diamond)).mintTo(B);
-
-        diamondErc20 = ERC20Facet(address(diamond));
+        interactingAuction = Auctions(address(diamond));
     }
 
-    function testMintToAddressesBalance() external{
-        assertEq(diamondErc20.balanceOf(A), 100_000_000e18);
-        assertEq(diamondErc20.balanceOf(B), 100_000_000e18);
-    }
-
-    function testTransfer() external {
-        switchSigner(A);
-        diamondErc20.transfer(address (1), 50_000e18);
-        assertEq(diamondErc20.balanceOf(address(1)), 50_000e18);
-        assertEq(diamondErc20.balanceOf(A), 99_950_000e18);
-    }
-
-    function testApprove() external{
-        switchSigner(A);
-        diamondErc20.approve(address (1), 100_000e18);
-        uint result = diamondErc20.allowance(A, address (1));
-        assertEq(result, 100_000e18);
-    }
-
-    function testTransferFrom() external{
-        switchSigner(A);
-        diamondErc20.approve(address (1), 100_000e18);
-        switchSigner(address (1));
-        diamondErc20.transferFrom(A, address (3), 80_000e18);
-        assertEq(diamondErc20.balanceOf(address(3)), 80_000e18);
-        assertEq(diamondErc20.allowance(A,address(1)), 20_000e18);
-        assertEq(diamondErc20.balanceOf(A), 99_920_000e18);
+    function testGetIfItIsAValidErc721() external{
+       bool result =  interactingAuction.isACompatibleAddress(address(erc1155));
+        assertTrue(result);
     }
 
     function generateSelectors(

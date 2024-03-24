@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {Test} from "lib/forge-std/src/Test.sol";
 import {console} from "lib/forge-std/src/console.sol";
-import "../contracts/ERC721.sol";
+import "../contracts/NFTERC721.sol";
 
 contract TestERC721 is Test{
 
