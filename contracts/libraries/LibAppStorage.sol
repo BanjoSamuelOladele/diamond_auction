@@ -45,16 +45,16 @@ library LibAppStorage {
         uint secondHighestBid;
         address highestBidder;
         address secondHighestBidder;
-
-        address erc721Address;
+        uint startingAmount;
+        address collectionContractAddress;
         uint tokenId;
     }
 
     struct AuctionStorage{
 
         //auction
-        mapping(address => uint16) auctionsCounter;
-        mapping(address => mapping(uint16 => Auction)) auctions;
+//        mapping(address => uint16) auctionsCounter;
+        mapping(address => Auction)) auctions;
 
         //token
         uint256 totalSupply;
