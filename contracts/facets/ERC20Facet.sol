@@ -11,6 +11,12 @@ contract ERC20Facet {
         uint256 _value
     );
 
+//    constructor(string memory name, string memory symbol, uint8 decimals){
+//        appStorage.name = name;
+//        appStorage.symbol = symbol;
+//        appStorage.decimals = decimals;
+//    }
+
     function name() external view returns (string memory) {
         return appStorage.name;
     }
@@ -45,8 +51,8 @@ contract ERC20Facet {
         uint256 _value
     ) public returns (bool success) {
         uint256 l_allowance = appStorage.allowances[_from][msg.sender];
-        if (msg.sender == _from || l.allowances[_from][msg.sender] >= _value) {
-            l.allowances[_from][msg.sender] = l_allowance - _value;
+        if (msg.sender == _from || appStorage.allowances[_from][msg.sender] >= _value) {
+            appStorage.allowances[_from][msg.sender] = l_allowance - _value;
             LibAppStorage._transferFrom(_from, _to, _value);
 
             emit Approval(_from, msg.sender, l_allowance - _value);
@@ -61,7 +67,7 @@ contract ERC20Facet {
         address _spender,
         uint256 _value
     ) public returns (bool success) {
-        allowances.allowances[msg.sender][_spender] = _value;
+        appStorage.allowances[msg.sender][_spender] = _value;
         emit Approval(msg.sender, _spender, _value);
         success = true;
     }
@@ -76,8 +82,8 @@ contract ERC20Facet {
     function mintTo(address _user) external {
         LibDiamond.enforceIsContractOwner();
         uint256 amount = 100_000_000e18;
-        l.balances[_user] += amount;
-        l.totalSupply += uint96(amount);
-        emit LibAppStorage.Transfer(address(0), _user, amount);
+        appStorage.balances[_user] += amount;
+        appStorage.totalSupply += uint96(amount);
+        emit LibAppStorage.Transfer(address (0), _user, amount);
     }
 }
