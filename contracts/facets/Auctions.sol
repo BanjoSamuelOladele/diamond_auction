@@ -30,7 +30,10 @@ contract Auctions {
 
     }
 
-    function transferCollectionToDiamond(bytes4 id) internal {
+    function transferCollectionToDiamond(bytes4 id, uint _tokenId) internal {
+        if(isErc721OrErc115 == LibAppStorage.ERC721_INTERFACE_ID){
+
+        }
 
     }
 
@@ -40,8 +43,9 @@ contract Auctions {
 
         bool isErc721 =  IERC165(contractAddress).supportsInterface(erc721InterfaceId);
         bool isErc1155 = IERC165(contractAddress).supportsInterface(erc1155InterfaceId);
+        require(isErc721 || isErc1155, "Not a supported collection contract address");
 
-        return isErc721 ?  erc721InterfaceId : isErc1155 ? erc1155InterfaceId : bytes4(0);
+        return isErc721 ?  erc721InterfaceId : erc1155InterfaceId;
     }
 
 }
