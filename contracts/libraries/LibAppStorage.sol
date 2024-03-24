@@ -1,5 +1,5 @@
 pragma solidity ^0.8.0;
-import "@openzeppelin/"
+//import "@openzeppelin/"
 
 library LibAppStorage {
     struct Layout {
@@ -32,6 +32,6 @@ library LibAppStorage {
         string name;
         uint8 decimals;
         mapping(address => uint256) balances;
-        mapping(address => mapping(address => uint256)) allowance;
+        mapping(address => mapping(address => uint256)) allowances;
     }
 }
