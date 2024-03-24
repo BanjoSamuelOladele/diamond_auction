@@ -9,7 +9,7 @@ contract Auctions {
     LibAppStorage.AuctionStorage internal appStorage;
 
     function createAuction(address _contractAddress, uint _tokenId, string memory auctionName, uint _startingPrice) external{
-        bytes4 isErc721OrErc115 =  isACompatibleAddress(_nftAddress);
+        bytes4 isErc721OrErc115 =  isACompatibleAddress(_contractAddress);
         require(_startingPrice > 0, "invalid starting amount");
         if(isErc721OrErc115 == LibAppStorage.ERC721_INTERFACE_ID){
 
@@ -31,7 +31,7 @@ contract Auctions {
     }
 
     function transferCollectionToDiamond(bytes4 id, uint _tokenId) internal {
-        if(isErc721OrErc115 == LibAppStorage.ERC721_INTERFACE_ID){
+        if(id == LibAppStorage.ERC721_INTERFACE_ID){
 
         }
 
@@ -45,6 +45,7 @@ contract Auctions {
         bool isErc1155 = IERC165(contractAddress).supportsInterface(erc1155InterfaceId);
         require(isErc721 || isErc1155, "Not a supported collection contract address");
 
+//        return isErc721 ? erc721InterfaceId : isErc1155 ? erc1155InterfaceId : bytes(0);
         return isErc721 ?  erc721InterfaceId : erc1155InterfaceId;
     }
 

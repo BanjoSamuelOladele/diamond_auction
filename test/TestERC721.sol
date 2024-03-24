@@ -9,8 +9,14 @@ contract TestERC721 is Test{
 
     NFTERC721 private nft;
 
+    address private A = address(0xa);
+    address private B = address(0xb);
+
     function setUp() external {
         nft = new NFTERC721();
+
+        A = mkaddr("staker a");
+        B = mkaddr("staker b");
     }
 
     function testNftTokenName() external {
@@ -27,5 +33,30 @@ contract TestERC721 is Test{
         assertEq(result, owner);
     }
 
+    function testApprove() external {
+        nft.mintTo(A, 1111);
+        switchSigner(A);
+        nft.approve(B, 1111);
+        address result = nft.getApproved(1111);
+        assertEq(result, B);
+    }
+
+    function mkaddr(string memory name) public returns (address) {
+        address addr = address(
+            uint160(uint256(keccak256(abi.encodePacked(name))))
+        );
+        vm.label(addr, name);
+        return addr;
+    }
+
+    function switchSigner(address _newSigner) public {
+        address foundrySigner = 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38;
+        if (msg.sender == foundrySigner) {
+            vm.startPrank(_newSigner);
+        } else {
+            vm.stopPrank();
+            vm.startPrank(_newSigner);
+        }
+    }
 
 }

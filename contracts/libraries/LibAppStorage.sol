@@ -9,7 +9,7 @@ library LibAppStorage {
         string name;
     }
     bytes4 internal constant ERC721_INTERFACE_ID = 0x80ac58cd;
-    bytes4 internal ERC1155_INTERFACE_ID = 0xd9b67a26;
+    bytes4 internal constant ERC1155_INTERFACE_ID = 0xd9b67a26;
 
     function appStorageLocation() internal pure returns(AuctionStorage storage app){
         assembly{
@@ -56,7 +56,7 @@ library LibAppStorage {
 
         //auction
 //        mapping(address => uint16) auctionsCounter;
-        mapping(address => Auction)) auctions;
+        mapping(address => Auction) auctions;
 
         //token
         uint256 totalSupply;
