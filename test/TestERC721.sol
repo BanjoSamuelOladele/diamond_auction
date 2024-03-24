@@ -39,6 +39,10 @@ contract TestERC721 is Test{
         nft.approve(B, 1111);
         address result = nft.getApproved(1111);
         assertEq(result, B);
+        switchSigner(B);
+        nft.safeTransferFrom(A, address (3), 1111);
+        address newOwner = nft.ownerOf(1111);
+        assertEq(newOwner, address (3));
     }
 
     function mkaddr(string memory name) public returns (address) {
@@ -48,6 +52,8 @@ contract TestERC721 is Test{
         vm.label(addr, name);
         return addr;
     }
+
+
 
     function switchSigner(address _newSigner) public {
         address foundrySigner = 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38;

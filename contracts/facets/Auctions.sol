@@ -4,37 +4,47 @@ pragma solidity ^0.8.0;
 import "../libraries/LibAppStorage.sol";
 import "lib/forge-std/src/console.sol";
 import "contracts/interfaces/IERC165.sol";
+import "contracts/interfaces/IERC721.sol";
 
 contract Auctions {
     LibAppStorage.AuctionStorage internal appStorage;
+    event AuctionCreatedSuccessfully(address indexed, uint);
 
     function createAuction(address _contractAddress, uint _tokenId, string memory auctionName, uint _startingPrice) external{
-        bytes4 isErc721OrErc115 =  isACompatibleAddress(_contractAddress);
+        bytes4 erc721OrErc115 =  isACompatibleAddress(_contractAddress);
         require(_startingPrice > 0, "invalid starting amount");
-        if(isErc721OrErc115 == LibAppStorage.ERC721_INTERFACE_ID){
-
+        bool isTransferSuccessful = transferCollectionToDiamond(_contractAddress, erc721OrErc115, _tokenId, msg.sender);
+        if(isTransferSuccessful){
+            LibAppStorage.Auction storage auction = appStorage.auctions[msg.sender];
+            auction.owner = msg.sender;
+            auction.auctionName = auctionName;
+            auction.collectionContractAddress = _contractAddress;
+            auction.startingAmount = _startingPrice;
+            auction.tokenId = _tokenId;
+            emit AuctionCreatedSuccessfully(msg.sender, _tokenId);
         }
         else{
-
+            revert();
         }
-        LibAppStorage.Auction storage auction = appStorage.auctions[msg.sender];
-        auction.owner = msg.sender;
-        auction.auctionName = auctionName;
-        auction.collectionContractAddress = _contractAddress;
-        auction.startingAmount = _startingPrice;
-        auction.tokenId = _tokenId;
-//        auction.startAt = block.timestamp;
+    }
+
+    function getAllStorageDetails() external view returns(LibAppStorage.AuctionStorage) {
+        return appStorage;
     }
 
     function startAuction() external{
 
     }
 
-    function transferCollectionToDiamond(bytes4 id, uint _tokenId) internal {
+    function transferCollectionToDiamond(address _contractAddress,bytes4 id, uint _tokenId, address owner) internal view returns(bool success) {
         if(id == LibAppStorage.ERC721_INTERFACE_ID){
+            IERC721(_contractAddress).approve(address (this), _tokenId);
+            IERC721(_contractAddress).transferFrom(owner,address (this),_tokenId);
+            success = true;
+        }
+        else{
 
         }
-
     }
 
     function isACompatibleAddress(address contractAddress) internal view returns(bytes4) {

@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 library LibAppStorage {
 
     event Transfer(address, address, uint);
+
     struct Layout {
         uint256 currentNo;
         string name;
