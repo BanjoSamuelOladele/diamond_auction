@@ -12,11 +12,11 @@ contract ERC20Facet {
         uint256 _value
     );
 
-//    constructor(string memory name, string memory symbol, uint8 decimals){
-//        appStorage.name = name;
-//        appStorage.symbol = symbol;
-//        appStorage.decimals = decimals;
-//    }
+    constructor(string memory _name, string memory _symbol, uint8 _decimals){
+        appStorage.name = _name;
+        appStorage.symbol = _symbol;
+        appStorage.decimals = _decimals;
+    }
 
     function name() external view returns (string memory) {
         return appStorage.name;
@@ -62,11 +62,11 @@ contract ERC20Facet {
         }
     }
 
-
     function approve(
         address _spender,
         uint256 _value
     ) public returns (bool success) {
+        require(balanceOf(msg.sender) >= _value, "Insufficient token");
         appStorage.allowances[msg.sender][_spender] = _value;
         emit Approval(msg.sender, _spender, _value);
         success = true;

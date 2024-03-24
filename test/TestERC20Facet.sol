@@ -27,8 +27,7 @@ contract TestERC20Facet is Test, IDiamondCut{
         diamond = new Diamond(address(this), address(dCutFacet));
         dLoupe = new DiamondLoupeFacet();
         ownerF = new OwnershipFacet();
-        erc20Facet = new ERC20Facet();
-
+        erc20Facet = new ERC20Facet("Auc Token", "aucT", 18);
 
         //build cut struct
         FacetCut[] memory cut = new FacetCut[](3);
@@ -59,8 +58,6 @@ contract TestERC20Facet is Test, IDiamondCut{
         //upgrade diamond
         IDiamondCut(address(diamond)).diamondCut(cut, address(0x0), "");
 
-        //set rewardToken
-//        diamond.setRewardToken(address(wow));
         A = mkaddr("staker a");
         B = mkaddr("staker b");
 
@@ -104,8 +101,9 @@ contract TestERC20Facet is Test, IDiamondCut{
 //        diamondErc20.stake(200_000_000e18);
 //    }
 
-    function testDiamondTokenName() external{
+    function testMintToAddressesBalance() external{
         assertEq(diamondErc20.balanceOf(A), 100_000_000e18);
+        assertEq(diamondErc20.balanceOf(B), 100_000_000e18);
     }
 
     function testTransfer() external {
