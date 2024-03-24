@@ -8,6 +8,8 @@ library LibAppStorage {
         uint256 currentNo;
         string name;
     }
+    bytes4 internal constant ERC721_INTERFACE_ID = 0x80ac58cd;
+    bytes4 internal ERC1155_INTERFACE_ID = 0xd9b67a26;
 
     function appStorageLocation() internal pure returns(AuctionStorage storage app){
         assembly{

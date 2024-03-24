@@ -9,13 +9,20 @@ contract Auctions {
     LibAppStorage.AuctionStorage internal appStorage;
 
     function createAuction(address _contractAddress, uint _tokenId, string memory auctionName, uint _startingPrice) external{
-       isACompatibleAddress(_nftAddress);
+        bytes4 isErc721OrErc115 =  isACompatibleAddress(_nftAddress);
         require(_startingPrice > 0, "invalid starting amount");
+        if(isErc721OrErc115 == LibAppStorage.ERC721_INTERFACE_ID){
+
+        }
+        else{
+
+        }
         LibAppStorage.Auction storage auction = appStorage.auctions[msg.sender];
         auction.owner = msg.sender;
         auction.auctionName = auctionName;
         auction.collectionContractAddress = _contractAddress;
         auction.startingAmount = _startingPrice;
+        auction.tokenId = _tokenId;
 //        auction.startAt = block.timestamp;
     }
 
@@ -23,16 +30,18 @@ contract Auctions {
 
     }
 
-    function isACompatibleAddress(address contractAddress) internal view returns(bool) {
-        bytes4 erc721InterfaceId = 0x80ac58cd;
-        bytes4 erc1155InterfaceId = 0xd9b67a26;
+    function transferCollectionToDiamond(bytes4 id) internal {
+
+    }
+
+    function isACompatibleAddress(address contractAddress) internal view returns(bytes4) {
+        bytes4 erc721InterfaceId = LibAppStorage.ERC721_INTERFACE_ID;
+        bytes4 erc1155InterfaceId = LibAppStorage.ERC1155_INTERFACE_ID;
 
         bool isErc721 =  IERC165(contractAddress).supportsInterface(erc721InterfaceId);
         bool isErc1155 = IERC165(contractAddress).supportsInterface(erc1155InterfaceId);
 
-        require(isErc721 || isErc1155, "Not erc721 nor erc1155 ");
-
-        return isErc721 || isErc1155;
+        return isErc721 ?  erc721InterfaceId : isErc1155 ? erc1155InterfaceId : bytes4(0);
     }
 
 }
