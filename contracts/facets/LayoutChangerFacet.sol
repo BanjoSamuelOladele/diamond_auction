@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 import {LibAppStorage} from "../libraries/LibAppStorage.sol";
 
 contract LayoutChangerFacet {
-    LibAppStorage.Layout layout;
+    LibAppStorage.Layout private layout;
 
     function ChangeNameAndNo(uint256 _newNo, string memory _newName) external {
         layout.currentNo = _newNo;
