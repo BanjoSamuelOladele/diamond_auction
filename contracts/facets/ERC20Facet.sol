@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 import {LibDiamond} from "../libraries/LibDiamond.sol";
 import {LibAppStorage} from "../libraries/LibAppStorage.sol";
+import {console} from "lib/forge-std/src/console.sol";
 
 contract ERC20Facet {
     LibAppStorage.AuctionStorage internal appStorage;
@@ -51,17 +52,16 @@ contract ERC20Facet {
         uint256 _value
     ) public returns (bool success) {
         uint256 l_allowance = appStorage.allowances[_from][msg.sender];
-        if (msg.sender == _from || appStorage.allowances[_from][msg.sender] >= _value) {
+        if (l_allowance >= _value) {
             appStorage.allowances[_from][msg.sender] = l_allowance - _value;
             LibAppStorage._transferFrom(_from, _to, _value);
-
             emit Approval(_from, msg.sender, l_allowance - _value);
-
             success = true;
         } else {
             revert("ERC20: Not enough allowance to transfer");
         }
     }
+
 
     function approve(
         address _spender,

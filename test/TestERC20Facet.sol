@@ -122,7 +122,15 @@ contract TestERC20Facet is Test, IDiamondCut{
         assertEq(result, 100_000e18);
     }
 
-
+    function testTransferFrom() external{
+        switchSigner(A);
+        diamondErc20.approve(address (1), 100_000e18);
+        switchSigner(address (1));
+        diamondErc20.transferFrom(A, address (3), 80_000e18);
+        assertEq(diamondErc20.balanceOf(address(3)), 80_000e18);
+        assertEq(diamondErc20.allowance(A,address(1)), 20_000e18);
+        assertEq(diamondErc20.balanceOf(A), 99_920_000e18);
+    }
 
     function generateSelectors(
         string memory _facetName
@@ -151,7 +159,6 @@ contract TestERC20Facet is Test, IDiamondCut{
             vm.stopPrank();
             vm.startPrank(_newSigner);
         }
-
     }
 
     function diamondCut(
