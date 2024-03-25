@@ -41,6 +41,7 @@ contract Auctions {
         LibAppStorage.Auction storage auction = appStorage.auctions[msg.sender][index];
         require(auction.owner == msg.sender, "only owner can start auction");
         require(!auction.hasStarted, "auction already started");
+        require(!auction.hasEnded,"cannot restart already ended auction");
         auction.startAt = block.timestamp;
         auction.endAt = block.timestamp + 60 minutes;
         auction.hasStarted = true;
@@ -49,8 +50,7 @@ contract Auctions {
 
     function endAuction(uint index) external{
         LibAppStorage.Auction storage auction = appStorage.auctions[msg.sender][index];
-        require(auction.owner == msg.sender, "only owner can perform this action");
-        require(!auction.hasEnded, "auction already ended");
+//        require(!auction.hasEnded, "auction already ended");
 //        require(auction.hasStarted, "not started");
         auction.hasEnded = true;
         auction.endAt = block.timestamp;

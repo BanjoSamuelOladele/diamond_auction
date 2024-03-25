@@ -166,6 +166,36 @@ contract TestAuction is Test, IDiamondCut {
         interactingAuction.startAuction(0);
     }
 
+    function testEndStartedAuction() external{
+        createAuctions();
+        switchSigner(A);
+        interactingAuction.startAuction(0);
+        interactingAuction.endAuction(0);
+        LibAppStorage.Auction memory auction = interactingAuction.getUserAuctions()[0];
+        assertTrue(auction.hasEnded);
+    }
+
+//    function testOnlyAuctionOwnerCanEndAuction() external {
+//        secondNft.mintTo(B, 3);
+//        switchSigner(B);
+//        secondNft.approve(address (diamond), 1);
+//        interactingAuction.createAuction(address (secondNft), 1, "take home", 15_000e18);
+//
+//        switchSigner()
+//        interactingAuction.startAuction(0);
+//
+//    }
+
+    function testCannotReStartAlreadyEndedAuction() external{
+        createAuctions();
+        switchSigner(A);
+        interactingAuction.startAuction(2);
+        interactingAuction.endAuction(2);
+        LibAppStorage.Auction memory auction = interactingAuction.getUserAuctions()[2];
+        assertEq(auction.owner, A);
+        vm.expectRevert();
+        interactingAuction.startAuction(2);
+    }
 
     function createAuctions() internal {
         firstNFT.mintTo(A, 1);

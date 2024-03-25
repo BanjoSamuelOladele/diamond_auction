@@ -29,7 +29,7 @@ library LibAppStorage {
 
     struct Bidder {
         uint256 amount;
-        address bidder;
+        uint[] timeInteraction;
     }
 
     struct Auction {
