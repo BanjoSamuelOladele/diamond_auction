@@ -39,6 +39,7 @@ contract Auctions {
 
         function startAuction(uint index) external {
             LibAppStorage.Auction storage auction = appStorage.auctions[msg.sender][index];
+            require(auction.owner == msg.sender, "only only can start auction");
             auction.startAt = block.timestamp;
             auction.endAt = block.timestamp + 5 minutes;
         }

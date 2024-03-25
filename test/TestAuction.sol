@@ -109,7 +109,27 @@ contract TestAuction is Test, IDiamondCut {
         switchSigner(A);
         vm.expectRevert();
 //        vm.expectRevert(bytes ("invalid starting amount"));
-        interactingAuction.createAuction(address(facetErc20), 121, "auctioning", 0 );
+        interactingAuction.createAuction(address(facetErc20), 121, "auctioning", 100e18);
+    }
+
+    function testTime() public {
+        firstNFT.mintTo(A, 100);
+        switchSigner(A);
+        firstNFT.approve(address (diamond), 100);
+        interactingAuction.createAuction(address (firstNFT), 100, "explore", 20_000e18);
+        LibAppStorage.Auction memory auction = interactingAuction.getAuction(0);
+        assertLe(auction.startAt, block.timestamp);
+    }
+
+    function testThatOnlyOwnerCanStartAuction() external {
+        firstNFT.mintTo(A, 2);
+        switchSigner(A);
+        firstNFT.approve(address (diamond), 2);
+        interactingAuction.createAuction(address (firstNFT), 2, "explore", 20_000e18);
+//        LibAppStorage.Auction memory auction = interactingAuction.getAuction(0);
+        switchSigner(B);
+        vm.expectRevert();
+        interactingAuction.startAuction(0);
     }
 
 
