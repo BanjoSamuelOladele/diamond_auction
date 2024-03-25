@@ -132,13 +132,31 @@ contract TestAuction is Test, IDiamondCut {
         interactingAuction.startAuction(0);
     }
 
+    function testNumberOfAuctionsCreatedByAnAddress() external {
+        createAuctions();
+        switchSigner(A);
+        LibAppStorage.Auction[] memory results = interactingAuction.getUserAuctions();
+        assertEq(results.length, 3);
+    }
 
-
-    function createAuctions() public {
+    function createAuctions() internal {
         firstNFT.mintTo(A, 1);
         firstNFT.mintTo(A, 2);
+        secondNft.mintTo(A, 1);
+        secondNft.mintTo(B, 3);
 
-//        s
+        switchSigner(A);
+        firstNFT.approve(address (diamond), 1);
+        interactingAuction.createAuction(address(firstNFT), 1, "exciting moment", 20_000e18);
+        firstNFT.approve(address (diamond), 2);
+        interactingAuction.createAuction(address (firstNFT), 2, "the xploration", 60_000e18);
+        secondNft.approve(address (diamond), 1);
+        interactingAuction.createAuction(address (secondNft), 1, "take home", 15_000e18);
+
+        switchSigner(B);
+        secondNft.approve(address (diamond), 3);
+        interactingAuction.createAuction(address (secondNft), 3, "the next level", 500_000e18);
+
     }
 
 

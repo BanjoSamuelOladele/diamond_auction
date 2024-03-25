@@ -35,14 +35,14 @@ contract Auctions {
         }
     }
 
-    function startAuction(uint index) external {
+    function startAuction(uint256 index) external {
         LibAppStorage.Auction storage auction = appStorage.auctions[msg.sender][index];
-        require(auction.owner == msg.sender, "only only can start auction");
+        require(auction.owner == msg.sender, "only owner can start auction");
         auction.startAt = block.timestamp;
         auction.endAt = block.timestamp + 5 minutes;
     }
 
-    function getAuction(uint index) external view returns(LibAppStorage.Auction memory){
+    function getAuction(uint256 index) external view returns(LibAppStorage.Auction memory){
         return appStorage.listOfAuctions[index];
     }
 
