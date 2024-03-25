@@ -10,6 +10,8 @@ contract Auctions {
     LibAppStorage.AuctionStorage internal appStorage;
 
     event AuctionCreatedSuccessfully(address indexed, uint256);
+    event StartedAuction(address owner, uint startedTime);
+    event EndedAuction(address owner, uint endtime);
 
     function createAuction(
         address _contractAddress,
@@ -38,17 +40,21 @@ contract Auctions {
     function startAuction(uint256 index) external {
         LibAppStorage.Auction storage auction = appStorage.auctions[msg.sender][index];
         require(auction.owner == msg.sender, "only owner can start auction");
+        require(!auction.hasStarted, "auction already started");
         auction.startAt = block.timestamp;
-        auction.endAt = block.timestamp + 5 minutes;
+        auction.endAt = block.timestamp + 60 minutes;
         auction.hasStarted = true;
+        emit StartedAuction(auction.owner, auction.startAt);
     }
 
     function endAuction(uint index) external{
         LibAppStorage.Auction storage auction = appStorage.auctions[msg.sender][index];
         require(auction.owner == msg.sender, "only owner can perform this action");
         require(!auction.hasEnded, "auction already ended");
+//        require(auction.hasStarted, "not started");
         auction.hasEnded = true;
         auction.endAt = block.timestamp;
+        emit EndedAuction(auction.owner, auction.endAt);
     }
 
     function getAuction(uint256 index) external view returns(LibAppStorage.Auction memory){

@@ -14,6 +14,10 @@ import "lib/forge-std/src/console.sol";
 //import "../contracts/DERC1155.sol";
 
 contract TestAuction is Test, IDiamondCut {
+
+    event AuctionCreatedSuccessfully(address indexed, uint256);
+    event StartedAuction(address owner, uint startedTime);
+
     Diamond private diamond;
     DiamondCutFacet private dCutFacet;
     DiamondLoupeFacet private dLoupe;
@@ -85,6 +89,8 @@ contract TestAuction is Test, IDiamondCut {
 
         LibAppStorage.Auction memory auction = interactingAuction.getAuction(0);
         assertEq(auction.owner, A);
+//        vm.expectEmit(true, false);
+//        emit AuctionCreatedSuccessfully(A, 111);
     }
 
     function testMultipleAuctionCanBeCreated() external{
@@ -146,9 +152,19 @@ contract TestAuction is Test, IDiamondCut {
 
         LibAppStorage.Auction memory result = interactingAuction.getUserAuctions()[0];
         assertTrue(result.hasStarted);
-        assertEq(result.endAt, block.timestamp + 5 minutes);
+        assertEq(result.endAt, block.timestamp + 60 minutes);
+//        vm.expectEmit(true, false);
+//        emit StartedAuction(A, result.startAt);
     }
 
+    function testCannotStartAlreadyStartedAuction() external{
+        createAuctions();
+        switchSigner(A);
+        interactingAuction.startAuction(0);
+//        switchSigner(A);
+        vm.expectRevert();
+        interactingAuction.startAuction(0);
+    }
 
 
     function createAuctions() internal {
