@@ -104,10 +104,15 @@ contract TestAuction is Test, IDiamondCut {
         assertEq(auction.owner, A);
     }
 
-//    function testRevertForAnERCContractAddressNotSupported() external{
-//        switchSigner(A);
-//        vm.expectRevert(stdError.);
-//    }
+    function testRevertForAnERCContractAddressNotSupported() external{
+        facetErc20 = new ERC20Facet();
+        switchSigner(A);
+        vm.expectRevert();
+//        vm.expectRevert(bytes ("invalid starting amount"));
+        interactingAuction.createAuction(address(facetErc20), 121, "auctioning", 0 );
+    }
+
+
 
     function generateSelectors(string memory _facetName) internal returns (bytes4[] memory selectors) {
         string[] memory cmd = new string[](3);
