@@ -5,8 +5,7 @@ import {Test} from "lib/forge-std/src/Test.sol";
 import {console} from "lib/forge-std/src/console.sol";
 import "../contracts/NFTERC721.sol";
 
-contract TestERC721 is Test{
-
+contract TestERC721 is Test {
     NFTERC721 private nft;
 
     address private A = address(0xa);
@@ -21,12 +20,12 @@ contract TestERC721 is Test{
 
     function testNftTokenName() external {
         string memory result = nft.name();
-        console.log("result is here ::: ",result);
+        console.log("result is here ::: ", result);
         assertEq(result, "wicked token");
     }
 
     function testMinToAddress() external {
-        address owner = address (1);
+        address owner = address(1);
         nft.mintTo(owner, 111);
         console.log("owner address is :::", owner);
         address result = nft.ownerOf(111);
@@ -40,20 +39,16 @@ contract TestERC721 is Test{
         address result = nft.getApproved(1111);
         assertEq(result, B);
         switchSigner(B);
-        nft.safeTransferFrom(A, address (3), 1111);
+        nft.safeTransferFrom(A, address(3), 1111);
         address newOwner = nft.ownerOf(1111);
-        assertEq(newOwner, address (3));
+        assertEq(newOwner, address(3));
     }
 
     function mkaddr(string memory name) public returns (address) {
-        address addr = address(
-            uint160(uint256(keccak256(abi.encodePacked(name))))
-        );
+        address addr = address(uint160(uint256(keccak256(abi.encodePacked(name)))));
         vm.label(addr, name);
         return addr;
     }
-
-
 
     function switchSigner(address _newSigner) public {
         address foundrySigner = 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38;
@@ -64,5 +59,4 @@ contract TestERC721 is Test{
             vm.startPrank(_newSigner);
         }
     }
-
 }

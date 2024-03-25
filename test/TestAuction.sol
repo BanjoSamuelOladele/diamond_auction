@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.0;
 
-import {IDiamondCut} from "../contracts/interfaces/IDiamondCut.sol";
 import "lib/forge-std/src/Test.sol";
+import "../contracts/interfaces/IDiamondCut.sol";
 import "../contracts/Diamond.sol";
 import "../contracts/facets/DiamondCutFacet.sol";
 import "../contracts/facets/DiamondLoupeFacet.sol";
@@ -11,9 +11,9 @@ import "../contracts/facets/ERC20Facet.sol";
 import "../contracts/facets/Auctions.sol";
 import "../contracts/NFTERC721.sol";
 import "lib/forge-std/src/console.sol";
-import "../contracts/DERC1155.sol";
+//import "../contracts/DERC1155.sol";
 
-contract TestAuction is Test, IDiamondCut{
+contract TestAuction is Test, IDiamondCut {
     Diamond private diamond;
     DiamondCutFacet private dCutFacet;
     DiamondLoupeFacet private dLoupe;
@@ -21,13 +21,14 @@ contract TestAuction is Test, IDiamondCut{
     ERC20Facet private erc20Facet;
     Auctions private auctions;
     NFTERC721 private firstNFT;
+    NFTERC721 private secondNft;
 
     address private A = address(0xa);
     address private B = address(0xb);
 
     Auctions private interactingAuction;
     ERC20Facet private facetErc20;
-    DERC1155 private erc1155;
+    //    DERC1155 private erc1155;
 
     function setUp() public {
         //deploy facets
@@ -38,51 +39,77 @@ contract TestAuction is Test, IDiamondCut{
         erc20Facet = new ERC20Facet();
         auctions = new Auctions();
         firstNFT = new NFTERC721();
-        erc1155 = new DERC1155();
+        secondNft = new NFTERC721();
+        //        erc1155 = new DERC1155();
 
         //build cut struct
         FacetCut[] memory cut = new FacetCut[](3);
 
         cut[0] = (
             FacetCut({
-            facetAddress: address(dLoupe),
-            action: FacetCutAction.Add,
-            functionSelectors: generateSelectors("DiamondLoupeFacet")
-        })
+                facetAddress: address(dLoupe),
+                action: FacetCutAction.Add,
+                functionSelectors: generateSelectors("DiamondLoupeFacet")
+            })
         );
 
         cut[1] = (
             FacetCut({
-            facetAddress: address(ownerF),
-            action: FacetCutAction.Add,
-            functionSelectors: generateSelectors("OwnershipFacet")
-        })
+                facetAddress: address(ownerF),
+                action: FacetCutAction.Add,
+                functionSelectors: generateSelectors("OwnershipFacet")
+            })
         );
         cut[2] = (
             FacetCut({
-            facetAddress: address(auctions),
-            action: FacetCutAction.Add,
-            functionSelectors: generateSelectors("Auctions")
-        })
+                facetAddress: address(auctions),
+                action: FacetCutAction.Add,
+                functionSelectors: generateSelectors("Auctions")
+            })
         );
 
         //upgrade diamond
         IDiamondCut(address(diamond)).diamondCut(cut, address(0x0), "");
 
-        A = mkaddr("staker a");
-        B = mkaddr("staker b");
+        A = mkaddr("a");
+        B = mkaddr("b");
 
         interactingAuction = Auctions(address(diamond));
     }
 
-    function testGetIfItIsAValidErc721() external{
-//       bool result =  interactingAuction.isACompatibleAddress(address(erc1155));
-//        assertTrue(result);
+    function testCreateAuction() external {
+        switchSigner(A);
+        firstNFT.mintTo(A, 111);
+        firstNFT.approve(address (diamond), 111);
+        interactingAuction.createAuction(address (firstNFT), 111, "distress", 1000e18);
+
+        LibAppStorage.Auction memory auction = interactingAuction.getAuction(0);
+        assertEq(auction.owner, A);
     }
 
-    function generateSelectors(
-        string memory _facetName
-    ) internal returns (bytes4[] memory selectors) {
+    function testMultipleAuctionCanBeCreated() external{
+        firstNFT.mintTo(A, 100);
+        switchSigner(B);
+        secondNft.mintTo(B, 121);
+        secondNft.approve(address (diamond), 121);
+        interactingAuction.createAuction(address (secondNft), 121, "explore", 20_000e18);
+
+        switchSigner(A);
+        firstNFT.approve(address (diamond), 100);
+        interactingAuction.createAuction(address (firstNFT), 100, "", 15_000e16);
+
+        LibAppStorage.Auction memory auction = interactingAuction.getAuction(1);
+        LibAppStorage.Auction memory anotherAuction = interactingAuction.getAuction(0);
+        assertEq(anotherAuction.collectionContractAddress, address (secondNft));
+        assertEq(auction.owner, A);
+    }
+
+//    function testRevertForAnERCContractAddressNotSupported() external{
+//        switchSigner(A);
+//        vm.expectRevert(stdError.);
+//    }
+
+    function generateSelectors(string memory _facetName) internal returns (bytes4[] memory selectors) {
         string[] memory cmd = new string[](3);
         cmd[0] = "node";
         cmd[1] = "scripts/genSelectors.js";
@@ -92,9 +119,7 @@ contract TestAuction is Test, IDiamondCut{
     }
 
     function mkaddr(string memory name) public returns (address) {
-        address addr = address(
-            uint160(uint256(keccak256(abi.encodePacked(name))))
-        );
+        address addr = address(uint160(uint256(keccak256(abi.encodePacked(name)))));
         vm.label(addr, name);
         return addr;
     }
@@ -109,9 +134,5 @@ contract TestAuction is Test, IDiamondCut{
         }
     }
 
-    function diamondCut(
-        FacetCut[] memory _diamondCut,
-        address _init,
-        bytes calldata _calldata
-    ) external override {}
+    function diamondCut(FacetCut[] memory _diamondCut, address _init, bytes calldata _calldata) external override {}
 }

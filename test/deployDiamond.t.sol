@@ -75,18 +75,16 @@ contract DiamondDeployer is Test, IDiamondCut {
         assertEq(la.currentNo, 777);
     }
 
-//    function testLayoutFacet2() public {
-//        LayoutChangerFacet l = LayoutChangerFacet(address(diamond));
-//        //check outputs
-//        LibAppStorage.Layout memory la = l.getLayout();
-//
-//        assertEq(la.name, "one guy");
-//        assertEq(la.currentNo, 777);
-//    }
+    //    function testLayoutFacet2() public {
+    //        LayoutChangerFacet l = LayoutChangerFacet(address(diamond));
+    //        //check outputs
+    //        LibAppStorage.Layout memory la = l.getLayout();
+    //
+    //        assertEq(la.name, "one guy");
+    //        assertEq(la.currentNo, 777);
+    //    }
 
-    function generateSelectors(
-        string memory _facetName
-    ) internal returns (bytes4[] memory selectors) {
+    function generateSelectors(string memory _facetName) internal returns (bytes4[] memory selectors) {
         string[] memory cmd = new string[](3);
         cmd[0] = "node";
         cmd[1] = "scripts/genSelectors.js";
@@ -95,9 +93,5 @@ contract DiamondDeployer is Test, IDiamondCut {
         selectors = abi.decode(res, (bytes4[]));
     }
 
-    function diamondCut(
-        FacetCut[] calldata _diamondCut,
-        address _init,
-        bytes calldata _calldata
-    ) external override {}
+    function diamondCut(FacetCut[] calldata _diamondCut, address _init, bytes calldata _calldata) external override {}
 }
