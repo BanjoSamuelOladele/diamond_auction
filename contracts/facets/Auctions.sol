@@ -42,6 +42,14 @@ contract Auctions {
         auction.endAt = block.timestamp + 5 minutes;
     }
 
+    function endAuction(uint index) external{
+        LibAppStorage.Auction storage auction = appStorage.auctions[msg.sender][index];
+        require(auction.owner == msg.sender, "only owner can perform this action");
+        require(!auction.hasEnded, "auction already ended");
+        !auction.hasEnded = true;
+        auction.endAt = block.timestamp;
+    }
+
     function getAuction(uint256 index) external view returns(LibAppStorage.Auction memory){
         return appStorage.listOfAuctions[index];
     }

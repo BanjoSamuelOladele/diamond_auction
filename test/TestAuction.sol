@@ -139,6 +139,8 @@ contract TestAuction is Test, IDiamondCut {
         assertEq(results.length, 3);
     }
 
+
+
     function createAuctions() internal {
         firstNFT.mintTo(A, 1);
         firstNFT.mintTo(A, 2);
@@ -156,9 +158,7 @@ contract TestAuction is Test, IDiamondCut {
         switchSigner(B);
         secondNft.approve(address (diamond), 3);
         interactingAuction.createAuction(address (secondNft), 3, "the next level", 500_000e18);
-
     }
-
 
     function generateSelectors(string memory _facetName) internal returns (bytes4[] memory selectors) {
         string[] memory cmd = new string[](3);
