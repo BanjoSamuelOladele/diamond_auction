@@ -45,6 +45,8 @@ library LibAppStorage {
         uint256 startingAmount;
         address collectionContractAddress;
         uint256 tokenId;
+        bool hasStarted;
+//        mapping(address => Bidder) bidders;
     }
 
     struct AuctionStorage {

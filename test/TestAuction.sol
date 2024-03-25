@@ -139,6 +139,16 @@ contract TestAuction is Test, IDiamondCut {
         assertEq(results.length, 3);
     }
 
+    function testStartAuction() external{
+        createAuctions();
+        switchSigner(A);
+        interactingAuction.startAuction(0);
+
+        LibAppStorage.Auction memory result = interactingAuction.getUserAuctions()[0];
+        assertTrue(result.hasStarted);
+        assertEq(result.endAt, block.timestamp + 5 minutes);
+    }
+
 
 
     function createAuctions() internal {

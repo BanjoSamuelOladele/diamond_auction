@@ -40,13 +40,14 @@ contract Auctions {
         require(auction.owner == msg.sender, "only owner can start auction");
         auction.startAt = block.timestamp;
         auction.endAt = block.timestamp + 5 minutes;
+        auction.hasStarted = true;
     }
 
     function endAuction(uint index) external{
         LibAppStorage.Auction storage auction = appStorage.auctions[msg.sender][index];
         require(auction.owner == msg.sender, "only owner can perform this action");
         require(!auction.hasEnded, "auction already ended");
-        !auction.hasEnded = true;
+        auction.hasEnded = true;
         auction.endAt = block.timestamp;
     }
 
