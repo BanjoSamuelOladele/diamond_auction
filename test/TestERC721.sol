@@ -44,6 +44,12 @@ contract TestERC721 is Test {
         assertEq(newOwner, address(3));
     }
 
+    function testCannotMintSameTokenToDifferentAddresses() external {
+        nft.mintTo(A, 1);
+        vm.expectRevert();
+        nft.mintTo(B, 1);
+    }
+
     function mkaddr(string memory name) public returns (address) {
         address addr = address(uint160(uint256(keccak256(abi.encodePacked(name)))));
         vm.label(addr, name);

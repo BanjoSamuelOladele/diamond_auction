@@ -134,6 +134,14 @@ contract TestAuction is Test, IDiamondCut {
 
 
 
+    function createAuctions() public {
+        firstNFT.mintTo(A, 1);
+        firstNFT.mintTo(A, 2);
+
+//        s
+    }
+
+
     function generateSelectors(string memory _facetName) internal returns (bytes4[] memory selectors) {
         string[] memory cmd = new string[](3);
         cmd[0] = "node";
