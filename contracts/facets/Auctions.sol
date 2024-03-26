@@ -42,19 +42,31 @@ contract Auctions {
         require(auction.owner == msg.sender, "only owner can start auction");
         require(!auction.hasStarted, "auction already started");
         require(!auction.hasEnded,"cannot restart already ended auction");
+        require(!auction.isCanceled, "auction already cancelled");
         auction.startAt = block.timestamp;
         auction.endAt = block.timestamp + 60 minutes;
         auction.hasStarted = true;
         emit StartedAuction(auction.owner, auction.startAt);
     }
 
-    function endAuction(uint index) external{
+    function endAuction(uint256 index) external{
         LibAppStorage.Auction storage auction = appStorage.auctions[msg.sender][index];
 //        require(!auction.hasEnded, "auction already ended");
-//        require(auction.hasStarted, "not started");
+        require(auction.hasStarted, "not started");
+        require(!auction.isCanceled, "already cancelled the auction");
         auction.hasEnded = true;
         auction.endAt = block.timestamp;
         emit EndedAuction(auction.owner, auction.endAt);
+    }
+
+    function cancelAuction(uint256 index) external {
+        LibAppStorage.Auction storage auction = appStorage.auctions[msg.sender][index];
+        require(auction.owner == msg.sender, "only seller can cancel auction");
+        require(!auction.hasEnded);
+        require(!auction.hasStarted);
+        bool succeed = transferCollectionToUser(auction.collectionContractAddress, auction.owner, auction.tokenId);
+        require(succeed);
+        auction.isCanceled = true;
     }
 
     function getAuction(uint256 index) external view returns(LibAppStorage.Auction memory){
@@ -65,10 +77,18 @@ contract Auctions {
         return appStorage.auctions[msg.sender];
     }
 
+    function transferCollectionToUser(address _contractAddress, address _userAddress, uint256 _tokenId) internal view returns(bool success){
+        bytes4 erc721OrErc115 = isACompatibleContractAddress(_contractAddress);
+        if (erc721OrErc115 == LibAppStorage.ERC721_INTERFACE_ID){
+            IERC721(_contractAddress).transferFrom(address(this), _userAddress, _tokenId);
+        }else{}
+    }
+
     function transferCollectionToDiamond(address _contractAddress, bytes4 id, uint256 _tokenId, address owner)
     internal
     returns (bool success)
     {
+
         if (id == LibAppStorage.ERC721_INTERFACE_ID) {
 //               IERC721(_contractAddress).approve(address(this), _tokenId);
             IERC721(_contractAddress).transferFrom(owner, address(this), _tokenId);

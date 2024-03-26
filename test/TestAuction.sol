@@ -84,11 +84,13 @@ contract TestAuction is Test, IDiamondCut {
     function testCreateAuction() external {
         switchSigner(A);
         firstNFT.mintTo(A, 111);
+        assertEq(firstNFT.ownerOf(111), A);
         firstNFT.approve(address (diamond), 111);
         interactingAuction.createAuction(address (firstNFT), 111, "distress", 1000e18);
 
         LibAppStorage.Auction memory auction = interactingAuction.getAuction(0);
         assertEq(auction.owner, A);
+        assertEq(firstNFT.ownerOf(111), address (diamond));
 //        vm.expectEmit(true, false);
 //        emit AuctionCreatedSuccessfully(A, 111);
     }
@@ -196,6 +198,15 @@ contract TestAuction is Test, IDiamondCut {
         vm.expectRevert();
         interactingAuction.startAuction(2);
     }
+
+    function testAuctionThatHasNotBeenStartedCannotBeEndedButRatherThrowsError() external{
+        createAuctions();
+        switchSigner(B);
+        vm.expectRevert();
+        interactingAuction.endAuction(0);
+    }
+
+
 
     function createAuctions() internal {
         firstNFT.mintTo(A, 1);

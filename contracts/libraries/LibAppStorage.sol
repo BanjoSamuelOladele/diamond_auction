@@ -46,6 +46,7 @@ library LibAppStorage {
         address collectionContractAddress;
         uint256 tokenId;
         bool hasStarted;
+        bool isCanceled;
 //        mapping(address => Bidder) bidders;
     }
 
